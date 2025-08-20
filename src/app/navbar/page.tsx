@@ -7,7 +7,7 @@ import { Menu, X } from "lucide-react"; // For hamburger menu
 
 export default function NavBar() {
   // Static categories
-  const navCategories = ["Home","Dresses","Accessories","Gifts","Plants","Candles"];
+  const navCategories = ["Home","Outfits","Accessories","Gifts","Plants","Candles"];
   const [isOpen, setIsOpen] = useState(false);
 
   return (

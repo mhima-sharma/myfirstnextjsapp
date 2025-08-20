@@ -57,7 +57,7 @@ export default function SignupPage() {
             placeholder="Name"
             value={form.name}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition"
+            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition text-gray-600"
             required
           />
           <input
@@ -65,7 +65,7 @@ export default function SignupPage() {
             placeholder="Email"
             value={form.email}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition"
+            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition text-gray-600"
             required
           />
           <input
@@ -73,7 +73,7 @@ export default function SignupPage() {
             placeholder="Phone"
             value={form.phone}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition"
+            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition text-gray-600"
             required
           />
           <input
@@ -82,7 +82,7 @@ export default function SignupPage() {
             placeholder="Password"
             value={form.password}
             onChange={handleChange}
-            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition"
+            className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition text-gray-600"
             required
           />
           <button

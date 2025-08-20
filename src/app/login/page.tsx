@@ -91,7 +91,7 @@ export default function LoginPage() {
               placeholder="Email or Phone"
               value={form.emailOrPhone}
               onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition"
+              className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition text-gray-600"
               required
             />
             <button
@@ -112,7 +112,7 @@ export default function LoginPage() {
               placeholder="Enter OTP"
               value={form.otp}
               onChange={handleChange}
-              className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition"
+              className="w-full px-4 py-3 border rounded-lg border-gray-300 focus:ring-2 text-gray-600 focus:ring-[#B39452] focus:border-[#B39452] outline-none transition"
               required
             />
             <button

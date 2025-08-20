@@ -1,4 +1,9 @@
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa";
+import Carousel from "./Carousel/page";
+import HeroSection from "./hero/page";
 import NavBar from "./navbar/page";
+import ProjectOverview from "./ProjectOverview/page";
+import Footer from "./footer/page";
 
 export default function Home() {
   return (
@@ -9,17 +14,21 @@ export default function Home() {
       </header>
 
       {/* Main Content */}
-      <main className="flex flex-col gap-[32px] items-center sm:items-start mt-[80px] px-4 w-full pt-5">
-        <h1 className="text-2xl font-bold">Welcome to the Home Page</h1>
-        <p className="text-gray-600">
-          Your content goes here. The NavBar stays fixed on top.
-        </p>
+      <main className="flex flex-col gap-[32px] items-center sm:items-start mt-[80px] px-4 w-full ">
+        <HeroSection />
       </main>
-
+      <main className="flex flex-col gap-[32px] items-center sm:items-start mt-[80px] px-4 w-full ">
+        <ProjectOverview />
+      </main>
+      <main className="flex flex-col gap-[32px] items-center sm:items-start mt-[80px] px-4 w-full ">
+        <Carousel />
+      </main>
+      
       {/* Footer */}
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center p-4 bg-gray-100 w-full mt-auto">
-        <p className="text-gray-500 text-sm">© 2025 Your Company. All rights reserved.</p>
-      </footer>
+      <main className="flex flex-col gap-[32px] items-center sm:items-start mt-[80px] px-4 w-full ">
+        <Footer/>
+      </main>
+    
     </div>
   );
 }
