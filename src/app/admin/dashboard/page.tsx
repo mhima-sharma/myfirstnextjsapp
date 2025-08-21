@@ -27,7 +27,7 @@ export default async function AdminDashboard() {
           <Link href="/admin/add-product" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
             <Plus size={20} /> Add Product
           </Link>
-          <Link href="/admin/manage-products" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
+          <Link href="/admin/manage-product" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
             <Edit size={20} /> Manage Products
           </Link>
           <Link href="/admin/orders" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
