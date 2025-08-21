@@ -1,8 +1,11 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function HeroSection() {
+  const router = useRouter(); 
+
   const categories = [
     { name: "Outfits", image: "/outfits.png" },
     { name: "Accessories", image: "/accessories.png" },
@@ -10,6 +13,10 @@ export default function HeroSection() {
     { name: "Plants", image: "/plants.png" },
     { name: "Candles", image: "/candles.png" },
   ];
+
+  const handleBuyNow = () => {
+    router.push("/Shop"); 
+  };
 
   return (
     <>
@@ -25,7 +32,6 @@ export default function HeroSection() {
               key={index}
               className="flex flex-col items-center cursor-pointer group"
             >
-              {/* Category Image */}
               <div className="w-32 h-24 rounded-full overflow-hidden relative shadow-md border border-gray-200 group-hover:shadow-lg transition-all duration-300">
                 <Image
                   src={category.image}
@@ -34,8 +40,6 @@ export default function HeroSection() {
                   className="object-cover"
                 />
               </div>
-
-              {/* Category Name */}
               <p className="mt-3 text-sm font-semibold text-gray-800 dark:text-gray-200 uppercase tracking-wide">
                 {category.name}
               </p>
@@ -46,7 +50,6 @@ export default function HeroSection() {
 
       {/* Hero Section */}
       <section className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto pt-10 pb-16 px-4">
-        {/* Left Side */}
         <div className="flex flex-col justify-center gap-4">
           <h2 className="text-4xl font-bold text-gray-900 dark:text-white">
             Modern Look & Clean Style
@@ -54,12 +57,14 @@ export default function HeroSection() {
           <p className="text-gray-600 dark:text-gray-300">
             Discover trendy, comfortable, and luxurious outfits for any occasion.
           </p>
-          <button className="mt-4 bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 w-40">
+          <button
+            onClick={handleBuyNow} // ✅ Correctly uses App Router
+            className="mt-4 bg-black text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-800 w-40"
+          >
             Buy Now
           </button>
         </div>
 
-        {/* Right Side Image */}
         <div className="w-full h-96 relative rounded-lg overflow-hidden">
           <Image
             src="/herosection.png"

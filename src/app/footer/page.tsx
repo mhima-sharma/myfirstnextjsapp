@@ -44,11 +44,11 @@ export default function Footer(){
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Categories</h3>
           <ul className="space-y-2">
-            <li><a className="hover:text-purple-400 transition">Outfits</a></li>
-            <li><a className="hover:text-purple-400 transition">Accessories</a></li>
-            <li><a className="hover:text-purple-400 transition">Gifts</a></li>
-            <li><a className="hover:text-purple-400 transition">Plants</a></li>
-            <li><a className="hover:text-purple-400 transition">Candles</a></li>
+            <li><a href="/Shop" className="hover:text-purple-400 transition">Outfits</a></li>
+            <li><a href="/Shop" className="hover:text-purple-400 transition">Accessories</a></li>
+            <li><a href="/Shop" className="hover:text-purple-400 transition">Gifts</a></li>
+            <li><a href="/Shop" className="hover:text-purple-400 transition">Plants</a></li>
+            <li><a href="/Shop" className="hover:text-purple-400 transition">Candles</a></li>
           </ul>
         </div>
 
