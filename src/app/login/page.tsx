@@ -126,20 +126,20 @@ export default function LoginPage() {
         )}
 
         {/* Divider */}
-        <div className="flex items-center gap-4 my-6">
+        {/* <div className="flex items-center gap-4 my-6">
           <hr className="flex-1 border-gray-300" />
           <span className="text-gray-500 text-sm">OR</span>
           <hr className="flex-1 border-gray-300" />
-        </div>
+        </div> */}
 
         {/* Google Login */}
-        <button className="w-full flex items-center justify-center gap-3 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
+        {/* <button className="w-full flex items-center justify-center gap-3 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
           <FcGoogle size={24} />
           <span className="text-gray-700 font-medium">Sign in with Google</span>
-        </button>
+        </button> */}
 
         {/* Footer */}
-        <p className="text-center text-gray-600 mt-6 text-sm">
+        {/* <p className="text-center text-gray-600 mt-6 text-sm">
           Don’t have an account?{" "}
           <Link
             href="/signup"
@@ -147,7 +147,7 @@ export default function LoginPage() {
           >
             Sign up
           </Link>
-        </p>
+        </p> */}
       </div>
     </div>
   );

@@ -55,9 +55,9 @@ export default function Footer(){
         {/* Contact Info */}
         <div>
           <h3 className="text-lg font-semibold text-white mb-4">Contact Us</h3>
-          <p className="text-gray-400">📍 LuxeLoom HQ, Mumbai, India</p>
-          <p className="text-gray-400">📧 support@luxeloom.com</p>
-          <p className="text-gray-400">📞 +91 98765 43210</p>
+          <p className="text-gray-400">📍 LuxeLoom , India</p>
+          <p className="text-gray-400">📧 mahimasharma052002@gmail.com </p>
+          <p className="text-gray-400">📞 +91 79885 43___</p>
         </div>
       </div>
 {/* Bottom Bar */}
