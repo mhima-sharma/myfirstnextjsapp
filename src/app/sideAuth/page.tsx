@@ -17,7 +17,7 @@ export default function SideAuth({ isOpen, onClose }: SideAuthProps) {
   useEffect(() => {
     if (isOpen) setShowPanel(true);
     else {
-      const timer = setTimeout(() => setShowPanel(false), 300); // matches transition duration
+      const timer = setTimeout(() => setShowPanel(false), 300); 
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
