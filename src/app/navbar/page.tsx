@@ -2,20 +2,28 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Menu, X, ShoppingCart, User } from "lucide-react";
 import SideAuth from "../sideAuth/page";
-import { useSession, signOut } from "next-auth/react"; // ✅ Import NextAuth hooks
+import { useSession, signOut } from "next-auth/react";
+import ProfileDrawer from "../profileDrawer/page";
+// import ProfileDrawer from "../profileDrawer"; // ✅ Import profile drawer
 
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSideAuthOpen, setIsSideAuthOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
 
-  // ✅ Get session status from NextAuth
-  const { data: session } = useSession();
-  const isLoggedIn = !!session;
+  const [storeToken, setStoreToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setStoreToken(token);
+    console.log(token, "_________________storeToken");
+  }, []);
+
+  const isLoggedIn = !!storeToken;
 
   return (
     <header className="fixed top-0 left-0 w-full bg-white shadow-md z-50 p-2 text-gray-900">
@@ -40,6 +48,8 @@ export default function NavBar() {
           <Link href="/contact" className="text-gray-700 hover:text-[#B39452] transition font-medium">Contact</Link>
           <Link href="/about" className="text-gray-700 hover:text-[#B39452] transition font-medium">About</Link>
           <Link href="/offers" className="text-gray-700 hover:text-[#B39452] transition font-medium">Offers</Link>
+          <Link href="/reviews" className="text-gray-700 hover:text-[#B39452] transition font-medium">Examiners</Link>
+
         </nav>
 
         {/* Desktop Right Icons */}
@@ -58,7 +68,7 @@ export default function NavBar() {
           {/* User/Profile */}
           {isLoggedIn && (
             <button
-              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              onClick={() => setIsProfileDrawerOpen(true)}
               className="p-2 rounded-full hover:bg-gray-100 transition"
             >
               <User size={24} />
@@ -94,9 +104,10 @@ export default function NavBar() {
             <Link href="/contact" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#B39452] transition font-medium">Contact</Link>
             <Link href="/about" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#B39452] transition font-medium">About</Link>
             <Link href="/offers" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#B39452] transition font-medium">Offers</Link>
+            <Link href="/reviews" onClick={() => setIsOpen(false)} className="text-gray-700 hover:text-[#B39452] transition font-medium">Examiners</Link>
+
           </nav>
 
-          {/* Mobile Sign In Button → Hide when logged in */}
           {!isLoggedIn && (
             <div className="flex flex-col gap-3 px-6 pb-4">
               <button
@@ -130,23 +141,11 @@ export default function NavBar() {
         </div>
       )}
 
-      {/* Profile Dropdown */}
-      {isProfileOpen && (
-        <div className="fixed right-4 top-20 w-48 bg-white shadow-lg rounded-md z-50 p-4">
-          <p className="font-medium mb-2">{session?.user?.name || "User Profile"}</p>
-          <Link href="/profile" className="block px-2 py-1 hover:bg-gray-100 rounded">My Account</Link>
-          <Link href="/orders" className="block px-2 py-1 hover:bg-gray-100 rounded">Orders</Link>
-          <button
-      onClick={() => {
-        signOut({ callbackUrl: "/signOut" }); // ✅ Clears session and redirects
-        setIsProfileOpen(false);      // ✅ Close dropdown
-      }}
-      className="block px-2 py-1 w-full text-left hover:bg-gray-100 rounded"
-    >
-      Logout
-    </button>
-        </div>
-      )}
+      {/* Profile Drawer */}
+      <ProfileDrawer
+        isOpen={isProfileDrawerOpen}
+        onClose={() => setIsProfileDrawerOpen(false)}
+      />
     </header>
   );
 }

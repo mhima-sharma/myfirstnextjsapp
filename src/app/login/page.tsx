@@ -17,46 +17,67 @@ export default function LoginPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  // ✅ Step 1: Send OTP
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    const res = await fetch("/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ emailOrPhone: form.emailOrPhone }),
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ emailOrPhone: form.emailOrPhone }),
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
+      setLoading(false);
 
-    if (res.ok) {
-      setStep(2);
-    } else {
-      setMessage(data.error || "Failed to send OTP");
+      if (res.ok) {
+        setStep(2); // ✅ Move to OTP verification step
+      } else {
+        setMessage(data.error || "Failed to send OTP");
+      }
+    } catch (error) {
+      console.error("Error sending OTP:", error);
+      setMessage("Something went wrong. Please try again.");
+      setLoading(false);
     }
   };
 
+  // ✅ Step 2: Verify OTP & Store Token
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage("");
 
-    const res = await fetch("/api/auth/verify-otp", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    try {
+      const res = await fetch("/api/auth/verify-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
 
-    const data = await res.json();
-    setLoading(false);
+      const data = await res.json();
+      setLoading(false);
 
-    if (res.ok) {
-      document.cookie = `token=${data.token}; path=/`;
-      router.push("/dashboard");
-    } else {
-      setMessage(data.error || "OTP verification failed");
+      if (res.ok) {
+        // ✅ Store token in localStorage
+        localStorage.setItem("token", data.token);
+
+        setMessage("OTP verified successfully! Redirecting...");
+        
+        // ✅ Redirect after short delay
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
+      } else {
+        setMessage(data.error || "OTP verification failed");
+      }
+    } catch (error) {
+      console.error("Error verifying OTP:", error);
+      setMessage("Something went wrong. Please try again.");
+      setLoading(false);
     }
   };
 
@@ -78,9 +99,15 @@ export default function LoginPage() {
             : "Enter the OTP sent to your email or phone"}
         </p>
 
-        {/* Error Message */}
+        {/* Error / Success Message */}
         {message && (
-          <p className="text-red-500 text-center mb-4 text-sm">{message}</p>
+          <p
+            className={`text-center mb-4 text-sm ${
+              message.includes("successfully") ? "text-green-600" : "text-red-500"
+            }`}
+          >
+            {message}
+          </p>
         )}
 
         {/* Step 1: Email or Phone */}
@@ -124,30 +151,6 @@ export default function LoginPage() {
             </button>
           </form>
         )}
-
-        {/* Divider */}
-        {/* <div className="flex items-center gap-4 my-6">
-          <hr className="flex-1 border-gray-300" />
-          <span className="text-gray-500 text-sm">OR</span>
-          <hr className="flex-1 border-gray-300" />
-        </div> */}
-
-        {/* Google Login */}
-        {/* <button className="w-full flex items-center justify-center gap-3 py-3 border border-gray-300 rounded-lg hover:bg-gray-100 transition">
-          <FcGoogle size={24} />
-          <span className="text-gray-700 font-medium">Sign in with Google</span>
-        </button> */}
-
-        {/* Footer */}
-        {/* <p className="text-center text-gray-600 mt-6 text-sm">
-          Don’t have an account?{" "}
-          <Link
-            href="/signup"
-            className="text-[#B39452] hover:underline font-semibold"
-          >
-            Sign up
-          </Link>
-        </p> */}
       </div>
     </div>
   );

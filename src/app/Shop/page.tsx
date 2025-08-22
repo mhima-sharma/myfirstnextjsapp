@@ -75,23 +75,21 @@ export default function Shop() {
         </div>
 
         {/* Categories */}
-        {/* Categories */}
-<div className="flex flex-wrap gap-4 mb-10 justify-center">
-  {categories.map((category) => (
-    <button
-      key={category}
-      onClick={() => setSelectedCategory(category)}
-      className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
-        selectedCategory === category
-          ? "bg-gold text-white shadow-lg scale-105 border-2 border-gold" // Highlighted active button
-          : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
-      }`}
-    >
-      {category}
-    </button>
-  ))}
-</div>
-
+        <div className="flex flex-wrap gap-4 mb-10 justify-center">
+          {categories.map((category) => (
+            <button
+              key={category}
+              onClick={() => setSelectedCategory(category)}
+              className={`px-5 py-2 rounded-full font-medium transition-all duration-300 ${
+                selectedCategory === category
+                  ? "bg-gold text-white shadow-lg scale-105 border-2 border-gold"
+                  : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-700"
+              }`}
+            >
+              {category}
+            </button>
+          ))}
+        </div>
 
         {/* Products */}
         <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8 max-w-7xl mx-auto">
@@ -100,42 +98,68 @@ export default function Shop() {
               No products available.
             </p>
           ) : (
-            filteredProducts.map((product) => (
-              <div
-                key={product.id}
-                className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden hover:scale-105 transition"
-              >
-                <img
-                  src={product.images?.split(",")[0] || "/placeholder.png"}
-                  alt={product.name}
-                  className="w-full h-64 object-cover"
-                />
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-                    {product.name}
-                  </h3>
-                  <p className="text-gold font-bold mt-1">₹{product.price}</p>
-                  <div className="flex items-center mt-2">
-                    {[...Array(5)].map((_, index) => (
-                      <FaStar
-                        key={index}
-                        className={`${
-                          index < Math.round(4.5)
-                            ? "text-gold"
-                            : "text-gray-400"
-                        }`}
-                      />
-                    ))}
-                    <span className="ml-2 text-gray-500 text-sm">4.5</span>
+            filteredProducts.map((product) => {
+              // ✅ Apply static 30% discount
+              const discountPercentage = 30;
+              const discountPrice = Math.round(
+                product.price - (product.price * discountPercentage) / 100
+              );
+
+              return (
+                <div
+                  key={product.id}
+                  className="bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden hover:scale-105 transition relative"
+                >
+                  {/* Product Image */}
+                  <div className="relative">
+                    <img
+                      src={product.images?.split(",")[0] || "/placeholder.png"}
+                      alt={product.name}
+                      className="w-full h-64 object-cover"
+                    />
+                    {/* Discount Badge */}
+                    <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-md">
+                      {discountPercentage}% OFF
+                    </span>
                   </div>
-                  <Link href={`/product-detail`}>
-                    <button className="mt-4 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition">
-                      View Details
-                    </button>
-                  </Link>
+
+                  {/* Product Info */}
+                  <div className="p-4">
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+                      {product.name}
+                    </h3>
+
+                    {/* Price Section */}
+                    <div className="flex items-center gap-3 mt-1">
+                      <p className="text-lg font-bold text-green-600">₹{discountPrice}</p>
+                      <p className="text-sm line-through text-gray-500">₹{product.price}</p>
+                    </div>
+
+                    {/* Rating */}
+                    <div className="flex items-center mt-2">
+                      {[...Array(5)].map((_, index) => (
+                        <FaStar
+                          key={index}
+                          className={`${
+                            index < Math.round(4.5)
+                              ? "text-gold"
+                              : "text-gray-400"
+                          }`}
+                        />
+                      ))}
+                      <span className="ml-2 text-gray-500 text-sm">4.5</span>
+                    </div>
+
+                    {/* View Details Button */}
+                    <Link href={`/product-detail?productId=${product.id}`}>
+                      <button className="mt-4 w-full bg-black text-white py-2 rounded-lg hover:bg-gray-800 transition">
+                        View Details
+                      </button>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </main>

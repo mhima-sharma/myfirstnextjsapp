@@ -18,6 +18,7 @@ export async function POST(req: Request) {
       "INSERT INTO users (name, email, phone, password, otp, otp_expiry) VALUES (?, ?, ?, ?, ?, ?)",
       [name, email, phone, hashed, otp, otpExpiry]
     );
+    
 
     // Send OTP email
     await sendOTP(email, otp);

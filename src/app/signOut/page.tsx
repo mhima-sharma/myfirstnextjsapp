@@ -1,18 +1,35 @@
 "use client";
 
 import { useSession, signOut } from "next-auth/react";
+import { useEffect, useState } from "react";
 
 export default function NavBar() {
-  const { data: session } = useSession();
-  const isLoggedIn = !!session;
+  const [storeToken, setStoreToken] = useState<string | null>(null);
+
+  // ✅ Access localStorage only on client
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setStoreToken(token);
+  }, []);
+
+  const isLoggedIn = !!storeToken;
+
+  const handleLogout = () => {
+    // 1️⃣ Remove token from localStorage
+    localStorage.removeItem("token");
+    setStoreToken(null);
+
+    // 2️⃣ Sign out NextAuth session (optional)
+    signOut({ callbackUrl: "/" });
+  };
 
   return (
     <nav>
       {isLoggedIn ? (
         <>
-          <p>Welcome, {session.user?.name}</p>
+          <p>Welcome!</p>
           <button
-            onClick={() => signOut({ callbackUrl: "/" })} // ✅ Clear session and redirect to home
+            onClick={handleLogout}
             className="px-4 py-2 bg-red-500 text-white rounded"
           >
             Logout
