@@ -47,6 +47,39 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
     if (isOpen) fetchUserProfile();
   }, [isOpen]);
 
+  // ✅ Function to get first letter of the name
+  const getInitial = (name: string) => {
+    return name ? name.charAt(0).toUpperCase() : "U";
+  };
+
+  // ✅ Function to capitalize the full name
+  const capitalizeName = (name: string) => {
+    if (!name) return "User";
+    return name
+      .toLowerCase()
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  // ✅ Generate a consistent colorful background based on user name
+  const getColor = (name: string) => {
+    const colors = [
+      "bg-red-500",
+      "bg-green-500",
+      "bg-blue-500",
+      "bg-purple-500",
+      "bg-pink-500",
+      "bg-yellow-500",
+      "bg-indigo-500",
+      "bg-teal-500",
+      "bg-orange-500",
+    ];
+    if (!name) return colors[0];
+    const index = name.charCodeAt(0) % colors.length;
+    return colors[index];
+  };
+
   return (
     <div
       className={`fixed top-0 right-0 h-full w-80 bg-white shadow-xl z-50 transform transition-transform duration-300 ${
@@ -67,15 +100,17 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
           <p className="text-center text-gray-500">Loading profile...</p>
         ) : user ? (
           <div className="space-y-6">
-            {/* Profile Image */}
+            {/* ✅ Profile Initial Avatar */}
             <div className="flex flex-col items-center">
-              <img
-                src="/images/default-avatar.png" // ✅ Always use static avatar
-                alt="Profile"
-                className="w-24 h-24 rounded-full border shadow"
-              />
+              <div
+                className={`w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow ${getColor(
+                  user.name
+                )}`}
+              >
+                {getInitial(user.name)}
+              </div>
               <h3 className="mt-3 text-xl font-semibold text-gray-900">
-                {user.name || "User"}
+                {capitalizeName(user.name)}
               </h3>
               <p className="text-gray-500 text-sm">
                 {user.email || "No email provided"}
@@ -110,8 +145,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
             {/* Logout Button */}
             <button
               onClick={() => {
-                localStorage.removeItem("token"); // ✅ Remove token
-                signOut({ callbackUrl: "/" }); // ✅ Redirect to home
+                localStorage.removeItem("token");
+                signOut({ callbackUrl: "/" });
                 onClose();
               }}
               className="w-full px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow"

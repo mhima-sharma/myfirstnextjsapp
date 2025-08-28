@@ -10,63 +10,97 @@ import Image from "next/image";
 export default function ProductDetails() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [product, setProduct] = useState<any>(null);
+  const [cart, setCart] = useState<any[]>([]);
+  const [token, setToken] = useState<string | null>(null);
+
   const router = useRouter();
   const searchParams = useSearchParams();
-  const productId = searchParams.get("productId"); // get from URL query
+  const productId = searchParams.get("productId");
 
-  const [storeToken, setStoreToken] = useState<string | null>(null);
+  const isLoggedIn = !!token;
 
-  // ✅ Get token from localStorage
+  // ✅ Load token on mount
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setStoreToken(token);
+    const t = localStorage.getItem("token");
+    setToken(t);
+    if (t) fetchCart(t);
   }, []);
 
-  const isLoggedIn = !!storeToken;
+  // ✅ Fetch cart from backend
+  const fetchCart = async (authToken: string) => {
+    try {
+      const res = await fetch("/api/cart", {
+        headers: { Authorization: `Bearer ${authToken}` },
+      });
+      const data = await res.json();
+      if (data.success) setCart(data.cart);
+    } catch (err) {
+      console.error("Failed to fetch cart:", err);
+    }
+  };
 
+  // ✅ Fetch product details
   useEffect(() => {
     if (!productId) return;
-
-    async function fetchProduct() {
+    const fetchProduct = async () => {
       try {
         const res = await fetch(`/api/products/${productId}`);
         const data = await res.json();
-
         if (data.success) {
           const images = Array.isArray(data.product.images)
             ? data.product.images
             : data.product.images
             ? data.product.images.split(",")
             : [];
-
           setProduct({ ...data.product, images });
         } else {
           alert("Product not found");
         }
-      } catch (error) {
-        console.error("Error fetching product:", error);
+      } catch (err) {
+        console.error(err);
         alert("Error fetching product");
       }
-    }
-
+    };
     fetchProduct();
   }, [productId]);
 
-  const handleAddToCart = () => {
+  // ✅ Add product to cart (dynamic)
+  const handleAddToCart = async () => {
     if (!isLoggedIn) {
-      alert("Please login first to add items to your cart!");
-    } else if (product) {
-      alert(`✅ ${product.name} added to cart!`);
-      // TODO: Add API to save cart
+      alert("Please login to add items to cart!");
+      return;
+    }
+    if (!product) return;
+
+    try {
+      const res = await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ product_id: product.id, quantity: 1 }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`✅ ${product.name} added to cart!`);
+        fetchCart(token!); // Refresh cart dynamically
+      } else {
+        alert(data.message || "Failed to add to cart");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error adding to cart");
     }
   };
 
   const handleBuyNow = () => {
     if (!isLoggedIn) {
       alert("Please login first to purchase items!");
-    } else if (product) {
-      router.push(`/checkout?productId=${product.id}`);
+      return;
     }
+    if (!product) return;
+    router.push(`/checkout?productId=${product.id}`);
   };
 
   if (!product) {
@@ -84,9 +118,10 @@ export default function ProductDetails() {
       ? product.images[selectedImage]
       : "/placeholder.png";
 
-  // ✅ Static 30% discount
   const discountPercentage = 30;
-  const discountPrice = Math.round(product.price - (product.price * discountPercentage) / 100);
+  const discountPrice = Math.round(
+    product.price - (product.price * discountPercentage) / 100
+  );
 
   return (
     <div className="bg-gray-50 min-h-screen flex flex-col">
@@ -96,7 +131,6 @@ export default function ProductDetails() {
         {/* Left: Product Images */}
         <div className="flex flex-col items-center">
           <div className="w-full max-w-md h-96 relative">
-            {/* Discount Badge on Image */}
             <span className="absolute top-3 left-3 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-md shadow-lg z-10">
               {discountPercentage}% OFF
             </span>
@@ -110,21 +144,17 @@ export default function ProductDetails() {
 
           <div className="flex gap-3 mt-4">
             {product.images &&
-              product.images.length > 0 &&
               product.images.map((img: string, index: number) => (
                 <div
                   key={index}
                   onClick={() => setSelectedImage(index)}
                   className={`w-20 h-20 relative cursor-pointer rounded-lg overflow-hidden border-2 ${
-                    selectedImage === index ? "border-black" : "border-gray-300"
+                    selectedImage === index
+                      ? "border-black"
+                      : "border-gray-300"
                   }`}
                 >
-                  <Image
-                    src={img}
-                    alt={`Thumbnail ${index}`}
-                    fill
-                    className="object-cover"
-                  />
+                  <Image src={img} alt={`Thumbnail ${index}`} fill className="object-cover" />
                 </div>
               ))}
           </div>
@@ -146,9 +176,7 @@ export default function ProductDetails() {
                 }`}
               />
             ))}
-            <span className="ml-2 text-gray-600 text-sm">
-              {product.rating ?? 0} / 5
-            </span>
+            <span className="ml-2 text-gray-600 text-sm">{product.rating ?? 0} / 5</span>
           </div>
 
           {/* Price Section */}
@@ -162,8 +190,7 @@ export default function ProductDetails() {
 
           {/* Category */}
           <p className="mt-2 text-sm text-gray-500">
-            Category:{" "}
-            <span className="font-medium text-gray-800">{product.category}</span>
+            Category: <span className="font-medium text-gray-800">{product.category}</span>
           </p>
 
           {/* Description */}

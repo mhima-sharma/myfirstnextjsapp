@@ -63,7 +63,7 @@ export default function ContactPage() {
           <h2 className="text-2xl font-semibold mb-6">Contact Information</h2>
           <div className="flex items-center space-x-4">
             <FaPhoneAlt className="text-gray-900 dark:text-gray-100 text-xl" />
-            <span className="text-lg">+91 79885 43___</span>
+            <span className="text-lg">+91 79885 43400</span>
           </div>
           <div className="flex items-center space-x-4">
             <FaEnvelope className="text-gray-900 dark:text-gray-100 text-xl" />
