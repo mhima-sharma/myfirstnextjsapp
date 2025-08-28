@@ -31,8 +31,10 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         });
 
         const data = await res.json();
+        console.log(data,"____datat")
         if (data.success) {
           setUser(data.user);
+            localStorage.setItem("user", JSON.stringify(data.user));
         } else {
           setUser(null);
         }
@@ -40,6 +42,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         console.error("Error fetching profile:", error);
         setUser(null);
       } finally {
+        
         setLoading(false);
       }
     };
