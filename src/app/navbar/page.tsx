@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Menu, X, ShoppingCart, User, Trash2, Plus } from "lucide-react";
+import { Menu, X, ShoppingCart, User, Trash2 } from "lucide-react";
 import SideAuth from "../sideAuth/page";
 import ProfileDrawer from "../profileDrawer/page";
 
@@ -129,15 +129,9 @@ export default function NavBar() {
     }
   };
 
-  // Checkout Handler
-  const handleCheckout = async () => {
-    try {
-      window.location.href = "/checkout";
-      // Clear cart after payment
-      clearCart();
-    } catch (err) {
-      console.error("❌ Checkout error:", err);
-    }
+  // Checkout Handler (no cart clearing here)
+  const handleCheckout = () => {
+    window.location.href = "/checkout";
   };
 
   // Discount Calculation

@@ -1,86 +1,132 @@
-import { getServerSession } from "next-auth";
-import { redirect } from "next/navigation";
-import { authOptions } from "../../../app/api/auth/[...nextauth]/route";
-import Link from "next/link";
-import { LogOut, Box, Plus, Edit, Trash } from "lucide-react";
 
-export default async function AdminDashboard() {
-  const session = await getServerSession(authOptions);
+"use client";
 
-  if (!session) {
-    redirect("/admin/login");
-  }
+import { useEffect, useState } from "react";
+
+export default function DashboardPage() {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+ // Derived stats
+const totalOrders = orders.length;
+const totalPaidOrders = orders.length;
+
+const totalRevenue = orders.reduce((sum, o) => {
+  const value = Number(o.total) || 0; // if o.total is undefined/null, use 0
+  console.log(value, "value",sum , o)
+  return sum + value;
+}, 0);
+
+console.log(totalOrders, "abc", totalPaidOrders, totalRevenue);
+
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const res = await fetch("/api/orders/all-orders");
+        const data = await res.json();
+        setOrders(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setOrders([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-lg flex flex-col">
-        <div className="p-6 flex flex-col items-center border-b border-gray-200">
-          <h1 className="text-2xl font-bold text-[#B39452] mb-1">Luxeloom Admin</h1>
-          <p className="text-gray-500 text-sm text-center">Welcome, {session.user?.email}</p>
+    <div className="flex flex-col h-screen bg-gray-100 p-6">
+      <h1 className="text-4xl font-extrabold mb-8 text-gray-900 text-center">
+        Orders Dashboard
+      </h1>
+
+      {/* Summary Cards */}
+      <div className="flex flex-wrap justify-center gap-6 mb-6 z-10">
+        <div className="bg-white shadow-md rounded-2xl px-8 py-6 text-center w-64">
+          <h2 className="text-xl font-semibold text-gray-700">Total Orders</h2>
+          <p className="text-4xl font-bold text-[#B39452] mt-2">{totalOrders}</p>
         </div>
-
-        <nav className="flex-1 px-4 py-6 space-y-4 text-gray-800">
-          <Link href="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
-            <Box size={20} /> Dashboard
-          </Link>
-          <Link href="/admin/add-product" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
-            <Plus size={20} /> Add Product
-          </Link>
-          <Link href="/admin/manage-product" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
-            <Edit size={20} /> Manage Products
-          </Link>
-          <Link href="/admin/orders" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-[#B39452]/10 transition font-medium">
-            <Edit size={20} /> Manage Orders
-          </Link>
-        </nav>
-
-        <div className="px-4 py-6 border-t border-gray-200">
-          <Link href="/admin/logout" className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-red-100 transition text-red-600 font-medium">
-            <LogOut size={20} /> Logout
-          </Link>
+        <div className="bg-white shadow-md rounded-2xl px-8 py-6 text-center w-64">
+          <h2 className="text-xl font-semibold text-gray-700">Payments Success</h2>
+          <p className="text-4xl font-bold text-green-600 mt-2">{totalPaidOrders}</p>
         </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 p-10">
-        <h2 className="text-3xl font-bold text-gray-900 mb-6">Admin Dashboard</h2>
-        <p className="text-gray-600 mb-6">
-          This is your protected admin panel. Only authorized users can access this area.
-        </p>
-
-        {/* Example Dashboard Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Products</h3>
-            <p className="text-2xl font-bold text-[#B39452]">124</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Orders Today</h3>
-            <p className="text-2xl font-bold text-[#B39452]">18</p>
-          </div>
-          <div className="bg-white p-6 rounded-2xl shadow hover:shadow-lg transition">
-            <h3 className="text-lg font-semibold text-gray-700 mb-2">Pending Reviews</h3>
-            <p className="text-2xl font-bold text-[#B39452]">5</p>
-          </div>
+        <div className="bg-white shadow-md rounded-2xl px-8 py-6 text-center w-64">
+          <h2 className="text-xl font-semibold text-gray-700">Total Revenue</h2>
+          <p className="text-4xl font-bold text-blue-600 mt-2">₹{totalRevenue}</p>
         </div>
+      </div>
 
-        {/* Additional Sections */}
-        <div className="mt-10">
-          <h3 className="text-xl font-semibold text-gray-800 mb-4 ">Quick Actions</h3>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-gray-800">
-            <Link href="/admin/products" className="bg-[#B39452]/10 p-6 rounded-xl flex items-center justify-center font-semibold hover:bg-[#B39452]/20 transition">
-              Add New Product
-            </Link>
-            <Link href="/admin/manage-products" className="bg-[#B39452]/10 p-6 rounded-xl flex items-center justify-center font-semibold hover:bg-[#B39452]/20 transition">
-              Edit Products
-            </Link>
-            <Link href="/admin/delete-products" className="bg-red-100 p-6 rounded-xl flex items-center justify-center font-semibold hover:bg-red-200 transition text-red-600">
-              Delete Products
-            </Link>
+      {/* Scrollable Orders Table */}
+      <div className="bg-white shadow rounded-2xl p-4 flex-1 flex flex-col">
+        {loading ? (
+          <p className="text-center text-gray-700">Loading orders...</p>
+        ) : orders.length === 0 ? (
+          <p className="text-center text-gray-700">No orders found.</p>
+        ) : (
+          <div className="overflow-x-auto w-full flex-1">
+            <div className="min-w-max overflow-y-auto h-[calc(100vh-300px)]">
+              <table className="w-full border border-gray-200 text-gray-800">
+                <thead className="sticky top-0 bg-[#B39452]/10 z-10">
+                  <tr>
+                    {[
+                      "Order ID",
+                      "Customer",
+                      "Email",
+                      "Phone",
+                      "Address",
+                      "City",
+                      "Pincode",
+                      "Total",
+                      "Payment",
+                      "Date",
+                    ].map((head) => (
+                      <th
+                        key={head}
+                        className="border px-4 py-2 text-left bg-[#B39452]/10"
+                      >
+                        {head}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders.map((order: any) => (
+                    <tr
+                      key={order.order_id}
+                      className="border-b hover:bg-[#B39452]/5 transition"
+                    >
+                      <td className="border px-4 py-2">{order.order_id}</td>
+                      <td className="border px-4 py-2">{order.user_name}</td>
+                      <td className="border px-4 py-2">{order.user_email}</td>
+                      <td className="border px-4 py-2">{order.user_phone}</td>
+                      <td className="border px-4 py-2">{order.delivery_address}</td>
+                      <td className="border px-4 py-2">{order.delivery_city}</td>
+                      <td className="border px-4 py-2">{order.delivery_pincode}</td>
+                      <td className="border px-4 py-2">₹{order.total_amount}</td>
+                      <td className="border px-4 py-2">
+                        <span
+                          className={`px-2 py-1 rounded-full text-sm font-medium ${
+                            order.payment_status === "Paid"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {order.payment_status}
+                        </span>
+                      </td>
+                      <td className="border px-4 py-2">
+                        {new Date(order.order_date).toLocaleString()}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      </main>
+        )}
+      </div>
     </div>
   );
 }
