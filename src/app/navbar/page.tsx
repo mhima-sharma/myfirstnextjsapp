@@ -7,22 +7,35 @@ import { Menu, X, ShoppingCart, User, Trash2, Plus } from "lucide-react";
 import SideAuth from "../sideAuth/page";
 import ProfileDrawer from "../profileDrawer/page";
 
+interface CartItem {
+  id: string;
+  name: string;
+  price: number;
+  images: string[];
+  quantity: number;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  images: string;
+}
+
 export default function NavBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isSideAuthOpen, setIsSideAuthOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isProfileDrawerOpen, setIsProfileDrawerOpen] = useState(false);
   const [showGiftMsg, setShowGiftMsg] = useState(true);
-
   const [storeToken, setStoreToken] = useState<string | null>(null);
-  const [cart, setCart] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
-  const [showAllQuickAdds, setShowAllQuickAdds] = useState(false);
 
   const isLoggedIn = !!storeToken;
 
-  // ✅ Load token & cart from backend
+  // Load token & fetch cart
   useEffect(() => {
     const token = localStorage.getItem("token");
     setStoreToken(token);
@@ -40,7 +53,7 @@ export default function NavBar() {
     }
   }, []);
 
-  // ✅ Fetch products for Quick Add
+  // Fetch products for Quick Add
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -56,7 +69,7 @@ export default function NavBar() {
     fetchProducts();
   }, []);
 
-  // ✅ Cart Operations
+  // Update Cart Backend Helper
   const updateCartBackend = async (payload: any) => {
     if (!storeToken) {
       setIsSideAuthOpen(true);
@@ -78,7 +91,8 @@ export default function NavBar() {
     }
   };
 
-  const handleAddToCart = (product: any) => {
+  // Cart Operations
+  const handleAddToCart = (product: Product) => {
     updateCartBackend({ product_id: product.id, quantity: 1 });
   };
 
@@ -94,10 +108,42 @@ export default function NavBar() {
     updateCartBackend({ product_id, quantity_change: -1 });
   };
 
-  // ✅ 30% Discount Calculation
+  // Clear Cart After Successful Payment
+  const clearCart = async () => {
+    if (!storeToken) return;
+    try {
+      const res = await fetch("/api/cart/clear", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${storeToken}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setCart([]);
+        setIsCartOpen(false);
+      }
+    } catch (err) {
+      console.error("❌ Error clearing cart:", err);
+    }
+  };
+
+  // Checkout Handler
+  const handleCheckout = async () => {
+    try {
+      window.location.href = "/checkout";
+      // Clear cart after payment
+      clearCart();
+    } catch (err) {
+      console.error("❌ Checkout error:", err);
+    }
+  };
+
+  // Discount Calculation
   const getDiscountedPrice = (price: number) => price - price * 0.3;
 
-  // ✅ Totals
+  // Totals
   const subtotal = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
   const totalDiscount = cart.reduce((acc, item) => acc + item.price * 0.3 * item.quantity, 0);
   const discountedTotal = subtotal - totalDiscount;
@@ -106,7 +152,7 @@ export default function NavBar() {
 
   return (
     <>
-      {/* 🎁 Surprise Gift */}
+      {/* 🎁 Floating Surprise Gift */}
       {isLoggedIn && showGiftMsg && (
         <div className="fixed bottom-4 right-4 bg-amber-100 text-amber-800 px-4 py-3 rounded shadow-lg flex items-center justify-between gap-4 z-50">
           <span>🎁 Surprise Gift from Luxeloom! Don’t miss out.</span>
@@ -127,12 +173,11 @@ export default function NavBar() {
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex gap-6">
-            <Link href="/" className="text-gray-700 hover:text-[#B39452] transition font-medium">Home</Link>
-            <Link href="/Shop" className="text-gray-700 hover:text-[#B39452] transition font-medium">Shop</Link>
-            <Link href="/contact" className="text-gray-700 hover:text-[#B39452] transition font-medium">Contact</Link>
-            <Link href="/about" className="text-gray-700 hover:text-[#B39452] transition font-medium">About</Link>
-            <Link href="/offers" className="text-gray-700 hover:text-[#B39452] transition font-medium">Offers</Link>
-            <Link href="/reviews" className="text-gray-700 hover:text-[#B39452] transition font-medium">Examiners</Link>
+            {[{ href: "/", label: "Home" }, { href: "/Shop", label: "Shop" }, { href: "/contact", label: "Contact" }, { href: "/about", label: "About" }, { href: "/offers", label: "Offers" }, { href: "/reviews", label: "Examiners" }].map((link) => (
+              <Link key={link.href} href={link.href} className="text-gray-700 hover:text-[#B39452] transition font-medium">
+                {link.label}
+              </Link>
+            ))}
           </nav>
 
           {/* Desktop Right Icons */}
@@ -176,6 +221,19 @@ export default function NavBar() {
           <div className="fixed right-0 top-0 w-96 h-full bg-white shadow-lg z-50 p-4 overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Your Cart</h2>
 
+            {/* Surprise Gift inside Cart */}
+            {cart.length > 0 && (
+              <div className="mb-4 p-3 bg-amber-100 text-amber-800 rounded shadow flex items-center justify-between">
+                <span>🎁 Surprise Gift from Luxeloom! Don’t miss out.</span>
+                <button
+                  onClick={() => setShowGiftMsg(false)}
+                  className="text-gray-600 hover:text-gray-800"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
+
             {/* Cart Items */}
             {cart.length === 0 ? (
               <p className="text-gray-500">Your cart is empty.</p>
@@ -185,7 +243,13 @@ export default function NavBar() {
                   const discountedPrice = getDiscountedPrice(item.price);
                   return (
                     <div key={item.id} className="flex items-center gap-3 border-b pb-3">
-                      <Image src={item.images[0]} alt={item.name} width={60} height={60} className="rounded-md object-cover" />
+                      <Image
+                        src={item.images[0]}
+                        alt={item.name}
+                        width={60}
+                        height={60}
+                        className="rounded-md object-cover"
+                      />
                       <div className="flex-1">
                         <h3 className="font-semibold text-gray-800">{item.name}</h3>
                         <div className="flex items-center gap-2">
@@ -207,56 +271,6 @@ export default function NavBar() {
               </div>
             )}
 
-            {/* Quick Add Products */}
-            <div className="mt-6 border-t pt-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">Quick Add (30% OFF)</h3>
-              {loadingProducts ? (
-                <p className="text-gray-500">Loading products...</p>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {(showAllQuickAdds ? products : products.slice(0, 4)).map((product) => {
-                    const discountedPrice = getDiscountedPrice(product.price);
-                    return (
-                      <div key={product.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-2 shadow-sm">
-                        <div className="flex items-center gap-3">
-                          <Image
-                            src={product.images?.split(",")[0]}
-                            alt={product.name}
-                            width={50}
-                            height={50}
-                            className="rounded-md object-cover"
-                          />
-                          <div>
-                            <h4 className="font-medium text-gray-800">{product.name}</h4>
-                            <div className="flex items-center gap-2">
-                              <p className="text-green-600 font-semibold">₹{discountedPrice}</p>
-                              <p className="text-gray-400 line-through text-sm">₹{product.price}</p>
-                            </div>
-                          </div>
-                        </div>
-                        <button
-                          onClick={() => handleAddToCart(product)}
-                          className="p-2 bg-[#B39452] text-white rounded-full hover:bg-[#9d8147] transition"
-                        >
-                          <Plus size={18} />
-                        </button>
-                      </div>
-                    );
-                  })}
-
-                  {/* Show More / Show Less */}
-                  {products.length > 4 && (
-                    <button
-                      onClick={() => setShowAllQuickAdds(!showAllQuickAdds)}
-                      className="mt-3 text-[#B39452] hover:underline font-medium text-sm"
-                    >
-                      {showAllQuickAdds ? "Show Less" : "Show More"}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-
             {/* Price Breakdown */}
             {cart.length > 0 && (
               <div className="mt-6 border-t pt-4">
@@ -276,13 +290,12 @@ export default function NavBar() {
                   <span>Total Payable:</span>
                   <span>₹{grandTotal.toFixed(2)}</span>
                 </div>
-                <Link
-                  href="/checkout"
-                  onClick={() => setIsCartOpen(false)}
+                <button
+                  onClick={handleCheckout}
                   className="mt-4 block w-full text-center px-4 py-2 bg-[#B39452] text-white rounded-lg hover:bg-[#9d8147] transition"
                 >
                   Checkout
-                </Link>
+                </button>
               </div>
             )}
 

@@ -138,7 +138,7 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
 
             {/* My Orders Button */}
             <Link
-              href="/orders"
+              href="/my-orders"
               onClick={onClose}
               className="block text-center w-full px-4 py-2 bg-[#B39452] text-white rounded-full hover:bg-[#9d8147] transition shadow"
             >

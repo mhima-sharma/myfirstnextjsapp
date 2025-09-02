@@ -92,6 +92,8 @@ export default function SignupPage() {
           >
             {loading ? "Signing up..." : "SIGN UP"}
           </button>
+          <p>If you are admin, <a href="/admin/login" className="text-[#B39452]">login here</a>.</p>
+
         </form>
 
        

@@ -2,30 +2,58 @@ import { NextRequest, NextResponse } from "next/server";
 import { pool } from "@/lib/database";
 
 export async function POST(req: NextRequest) {
+  const connection = await pool.getConnection();
   try {
     const body = await req.json();
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, txnid, status } = body;
+    console.log("webhook data_________", body);
 
-    // ✅ Update Razorpay Payments
-    if (razorpay_order_id) {
-      await pool.query(
-        "UPDATE payments SET payment_id=?, status=? WHERE order_id=?",
-        [razorpay_payment_id, "success", razorpay_order_id]
-      );
-    }
+    const {
+      user_id,
+      order_id,
+      total,
+      status,
+      full_name,
+      phone,
+      address,
+      city,
+      pincode,
+    } = body;
 
-    // ✅ Update Easebuzz Payments
-    if (txnid) {
-      const newStatus = status === "success" ? "success" : "failed";
-      await pool.query(
-        "UPDATE payments SET status=? WHERE order_id=?",
-        [newStatus, txnid]
-      );
-    }
+    // ✅ Step 1: Save delivery address first
+    const [addressResult]: any = await connection.query(
+      `INSERT INTO delivery_addresses (user_id, full_name, phone, address, city, pincode)
+       VALUES (?, ?, ?, ?, ?, ?)`,
+      [user_id, full_name, phone, address, city, pincode]
+    );
 
-    return NextResponse.json({ success: true });
+    const deliveryAddressId = addressResult.insertId;
+
+    // ✅ Step 2: Save order with delivery_address_id
+    await connection.query(
+      `INSERT INTO orders (user_id, order_id, delivery_address_id, total, status, created_at)
+       VALUES (?, ?, ?, ?, ?, NOW())`,
+      [user_id, order_id, deliveryAddressId, total, status || "processing"]
+    );
+
+    // ✅ Step 3: Update payment status in the payments table
+    await connection.query(
+      `UPDATE payments 
+       SET status = ? 
+       WHERE order_id = ?`,
+      [status || "success", order_id]
+    );
+
+    return NextResponse.json({
+      success: true,
+      message: "Order placed successfully & payment status updated!",
+    });
   } catch (error: any) {
-    console.error(error);
-    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+    console.error("Payment Webhook Error:", error);
+    return NextResponse.json(
+      { success: false, message: error.message },
+      { status: 500 }
+    );
+  } finally {
+    connection.release();
   }
 }

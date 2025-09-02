@@ -1,18 +1,22 @@
-// /app/api/cart/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import jwt from "jsonwebtoken";
 import { pool } from "@/lib/database";
 
+// Helper: Get user ID from token
+const getUserIdFromToken = (req: NextRequest) => {
+  const authHeader = req.headers.get("authorization");
+  if (!authHeader) throw new Error("Unauthorized");
+  const token = authHeader.split(" ")[1];
+  if (!token) throw new Error("Unauthorized");
+
+  const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+  return decoded.id;
+};
+
+
 export async function GET(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-
-    const token = authHeader.split(" ")[1];
-    if (!token) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = decoded.id;
+    const userId = getUserIdFromToken(req);
 
     const [cart]: any = await pool.query(
       `SELECT 
@@ -43,24 +47,23 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ success: true, cart: cartWithImages });
   } catch (err: any) {
     console.error("GET /api/cart error:", err);
-    const message = err.name === "JsonWebTokenError" ? "Invalid token" : "Internal Server Error";
+    const message =
+      err.name === "JsonWebTokenError" || err.message === "Unauthorized"
+        ? "Unauthorized"
+        : "Internal Server Error";
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }
 
+
 export async function POST(req: NextRequest) {
   try {
-    const authHeader = req.headers.get("authorization");
-    if (!authHeader) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-
-    const token = authHeader.split(" ")[1];
-    if (!token) return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
-
-    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
-    const userId = decoded.id;
-
+    const userId = getUserIdFromToken(req);
     const { product_id, quantity } = await req.json();
-    if (!product_id || !quantity || quantity <= 0) return NextResponse.json({ success: false, message: "Invalid input" }, { status: 400 });
+
+    if (!product_id || !quantity || quantity <= 0) {
+      return NextResponse.json({ success: false, message: "Invalid input" }, { status: 400 });
+    }
 
     const [existingCart]: any = await pool.query(
       `SELECT * FROM cart WHERE user_id = ? AND product_id = ?`,
@@ -82,7 +85,33 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, message: "Item added to cart" });
   } catch (err: any) {
     console.error("POST /api/cart error:", err);
-    const message = err.name === "JsonWebTokenError" ? "Invalid token" : "Internal Server Error";
+    const message =
+      err.name === "JsonWebTokenError" || err.message === "Unauthorized"
+        ? "Unauthorized"
+        : "Internal Server Error";
+    return NextResponse.json({ success: false, message }, { status: 500 });
+  }
+}
+
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const userId = getUserIdFromToken(req);
+    const { product_id } = await req.json();
+
+    if (!product_id) {
+      return NextResponse.json({ success: false, message: "Product ID required" }, { status: 400 });
+    }
+
+    await pool.query(`DELETE FROM cart WHERE user_id = ? AND product_id = ?`, [userId, product_id]);
+
+    return NextResponse.json({ success: true, message: "Item removed from cart" });
+  } catch (err: any) {
+    console.error("DELETE /api/cart error:", err);
+    const message =
+      err.name === "JsonWebTokenError" || err.message === "Unauthorized"
+        ? "Unauthorized"
+        : "Internal Server Error";
     return NextResponse.json({ success: false, message }, { status: 500 });
   }
 }

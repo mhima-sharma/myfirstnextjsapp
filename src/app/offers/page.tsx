@@ -22,12 +22,16 @@ export default function OffersPage() {
   useEffect(() => {
     async function fetchOffers() {
       try {
+        // Attempt to fetch offers from the API endpoint
         const res = await fetch("/api/offers");
+
         if (res.ok) {
+          // If the response is OK, parse it as JSON
           const data = await res.json();
+          // Update the offers state with the fetched offers
           setOffers(data.offers);
         } else {
-          // Static fallback offers
+          // If the API fails, use static fallback offers
           setOffers([
             {
               id: 1,
@@ -46,18 +50,20 @@ export default function OffersPage() {
               image: "/sale.png",
               link: "/shop",
             },
-           
           ]);
         }
       } catch (error) {
+        // Handle any network or unexpected errors
         console.error("Error fetching offers:", error);
       } finally {
+        // Once fetching is done (success or failure), set loading to false
         setLoading(false);
       }
     }
 
+    // Call the function to fetch offers when the component mounts
     fetchOffers();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once on mount
 
   if (loading) {
     return (
