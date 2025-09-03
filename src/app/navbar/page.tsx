@@ -20,6 +20,7 @@ interface Product {
   name: string;
   price: number;
   images: string;
+  quantity: number;
 }
 
 export default function NavBar() {
@@ -53,7 +54,7 @@ export default function NavBar() {
     }
   }, []);
 
-  // Fetch products for Quick Add
+  // Fetch products for stock check
   useEffect(() => {
     async function fetchProducts() {
       try {
@@ -93,19 +94,48 @@ export default function NavBar() {
 
   // Cart Operations
   const handleAddToCart = (product: Product) => {
+    const cartItem = cart.find((item) => item.id === product.id);
+    const currentQty = cartItem ? cartItem.quantity : 0;
+
+    if (currentQty + 1 > product.quantity) {
+      alert("Cannot add more than available stock!");
+      return;
+    }
+
     updateCartBackend({ product_id: product.id, quantity: 1 });
   };
 
-  const handleRemoveFromCart = (product_id: string) => {
-    updateCartBackend({ product_id, remove: true });
-  };
-
   const handleIncreaseQty = (product_id: string) => {
+    const cartItem = cart.find((item) => item.id === product_id);
+    const product = products.find((p) => p.id === product_id);
+    if (!cartItem || !product) return;
+
+    if (cartItem.quantity + 1 > product.quantity) {
+      alert("Cannot increase beyond available stock!");
+      return;
+    }
+
     updateCartBackend({ product_id, quantity_change: 1 });
   };
 
   const handleDecreaseQty = (product_id: string) => {
+    const cartItem = cart.find((item) => item.id === product_id);
+    if (!cartItem) return;
+
+    if (cartItem.quantity <= 1) {
+      handleRemoveFromCart(product_id);
+      return;
+    }
+
     updateCartBackend({ product_id, quantity_change: -1 });
+  };
+
+  const handleRemoveFromCart = (product_id: string) => {
+    if (!storeToken) return setIsSideAuthOpen(true);
+
+    setCart((prev) => prev.filter((item) => item.id !== product_id));
+
+    updateCartBackend({ product_id, remove: true });
   };
 
   // Clear Cart After Successful Payment
@@ -129,7 +159,7 @@ export default function NavBar() {
     }
   };
 
-  // Checkout Handler (no cart clearing here)
+  // Checkout Handler
   const handleCheckout = () => {
     window.location.href = "/checkout";
   };
@@ -176,8 +206,7 @@ export default function NavBar() {
 
           {/* Desktop Right Icons */}
           <div className="hidden md:flex gap-4 items-center">
-            {/* Cart */}
-            <button onClick={() => setIsCartOpen(!isCartOpen)} className="relative p-2 rounded-full hover:bg-gray-100 transition">
+            <button onClick={() => setIsCartOpen(true)} className="relative p-2 rounded-full hover:bg-gray-100 transition">
               <ShoppingCart size={24} />
               {cart.length > 0 && (
                 <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
@@ -186,15 +215,11 @@ export default function NavBar() {
               )}
             </button>
 
-            {/* Profile */}
-            {isLoggedIn && (
+            {isLoggedIn ? (
               <button onClick={() => setIsProfileDrawerOpen(true)} className="p-2 rounded-full hover:bg-gray-100 transition">
                 <User size={24} />
               </button>
-            )}
-
-            {/* Sign In */}
-            {!isLoggedIn && (
+            ) : (
               <button onClick={() => setIsSideAuthOpen(true)} className="px-4 py-2 bg-[#B39452] text-white rounded-full hover:bg-[#9d8147] transition">
                 Sign In
               </button>
@@ -207,16 +232,47 @@ export default function NavBar() {
           </button>
         </div>
 
+        {/* Mobile Menu */}
+        {isOpen && (
+          <nav className="md:hidden bg-white shadow-md w-full py-4 px-6 flex flex-col gap-4">
+            {[{ href: "/", label: "Home" }, { href: "/Shop", label: "Shop" }, { href: "/contact", label: "Contact" }, { href: "/about", label: "About" }, { href: "/offers", label: "Offers" }, { href: "/reviews", label: "Examiners" }].map((link) => (
+              <Link key={`mobile-${link.href}`} href={link.href} className="text-gray-700 hover:text-[#B39452] transition font-medium">
+                {link.label}
+              </Link>
+            ))}
+
+            <div className="flex gap-4 items-center">
+              <button onClick={() => setIsCartOpen(true)} className="relative p-2 rounded-full hover:bg-gray-100 transition">
+                <ShoppingCart size={24} />
+                {cart.length > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center">
+                    {cart.length}
+                  </span>
+                )}
+              </button>
+
+              {isLoggedIn ? (
+                <button onClick={() => setIsProfileDrawerOpen(true)} className="p-2 rounded-full hover:bg-gray-100 transition">
+                  <User size={24} />
+                </button>
+              ) : (
+                <button onClick={() => setIsSideAuthOpen(true)} className="px-4 py-2 bg-[#B39452] text-white rounded-full hover:bg-[#9d8147] transition">
+                  Sign In
+                </button>
+              )}
+            </div>
+          </nav>
+        )}
+
         {/* Side Auth */}
         <SideAuth isOpen={isSideAuthOpen} onClose={() => setIsSideAuthOpen(false)} />
 
         {/* Cart Drawer */}
         {isCartOpen && (
-          <div className="fixed right-0 top-0 w-96 h-full bg-white shadow-lg z-50 p-4 overflow-y-auto">
+          <div className="fixed right-0 top-0 w-full md:w-96 h-full bg-white shadow-lg z-50 p-4 overflow-y-auto">
             <h2 className="text-xl font-bold mb-4">Your Cart</h2>
 
-            {/* Surprise Gift inside Cart */}
-            {cart.length > 0 && (
+            {cart.length > 0 && showGiftMsg && (
               <div className="mb-4 p-3 bg-amber-100 text-amber-800 rounded shadow flex items-center justify-between">
                 <span>🎁 Surprise Gift from Luxeloom! Don’t miss out.</span>
                 <button
@@ -228,7 +284,6 @@ export default function NavBar() {
               </div>
             )}
 
-            {/* Cart Items */}
             {cart.length === 0 ? (
               <p className="text-gray-500">Your cart is empty.</p>
             ) : (
@@ -236,7 +291,7 @@ export default function NavBar() {
                 {cart.map((item) => {
                   const discountedPrice = getDiscountedPrice(item.price);
                   return (
-                    <div key={item.id} className="flex items-center gap-3 border-b pb-3">
+                    <div key={`cart-${item.id}`} className="flex items-center gap-3 border-b pb-3">
                       <Image
                         src={item.images[0]}
                         alt={item.name}
@@ -251,9 +306,19 @@ export default function NavBar() {
                           <p className="text-gray-400 line-through text-sm">₹{item.price}</p>
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <button onClick={() => handleDecreaseQty(item.id)} className="px-2 py-1 bg-gray-200 rounded">-</button>
-                          <span className="px-2">{item.quantity}</span>
-                          <button onClick={() => handleIncreaseQty(item.id)} className="px-2 py-1 bg-gray-200 rounded">+</button>
+                          <span className="px-2">Quantity: {item.quantity}</span>
+                        </div>
+
+                        {/* ✅ Brand Badge Logo Added */}
+                        <div className="flex items-center gap-2 mt-2">
+                          <Image
+                            src="/logo2.png"
+                            alt="LuxeLoom Logo"
+                            width={40}
+                            height={40}
+                            className="rounded-full shadow-md"
+                          />
+                          <span className="text-xs text-gray-500">LuxeLoom Verified</span>
                         </div>
                       </div>
                       <button onClick={() => handleRemoveFromCart(item.id)} className="p-1 text-red-500 hover:bg-gray-100 rounded">
@@ -265,7 +330,6 @@ export default function NavBar() {
               </div>
             )}
 
-            {/* Price Breakdown */}
             {cart.length > 0 && (
               <div className="mt-6 border-t pt-4">
                 <div className="flex justify-between text-gray-600 mb-2">

@@ -22,16 +22,12 @@ export default function OffersPage() {
   useEffect(() => {
     async function fetchOffers() {
       try {
-        // Attempt to fetch offers from the API endpoint
-        const res = await fetch("/api/offers");
+        const res = await fetch("/api/offers", { cache: "no-store" });
 
         if (res.ok) {
-          // If the response is OK, parse it as JSON
           const data = await res.json();
-          // Update the offers state with the fetched offers
           setOffers(data.offers);
         } else {
-          // If the API fails, use static fallback offers
           setOffers([
             {
               id: 1,
@@ -40,7 +36,7 @@ export default function OffersPage() {
                 "Shop now and get an exclusive free surprise gift with your very first LuxeLoom purchase. Don't miss out!",
               discount: "Free Gift",
               image: "/surprisegift.png",
-              link: "/shop",
+              link: "/Shop",
             },
             {
               id: 2,
@@ -48,27 +44,31 @@ export default function OffersPage() {
               description: "Celebrate style! Flat 30% OFF on premium outfits.",
               discount: "30% OFF",
               image: "/sale.png",
-              link: "/shop",
+              link: "/Shop",
             },
           ]);
         }
       } catch (error) {
-        // Handle any network or unexpected errors
         console.error("Error fetching offers:", error);
       } finally {
-        // Once fetching is done (success or failure), set loading to false
         setLoading(false);
       }
     }
 
-    // Call the function to fetch offers when the component mounts
     fetchOffers();
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen text-xl font-medium text-gray-700">
-        Loading Offers...
+      <div className="flex flex-col items-center justify-center h-screen bg-black">
+        <Image
+          src="/loading.gif"
+          alt="Loading"
+          width={60}
+          height={60}
+          className="mb-4"
+        />
+        <p className="text-lg font-medium text-white">Loading Offers...</p>
       </div>
     );
   }
@@ -77,60 +77,72 @@ export default function OffersPage() {
     <>
       <NavBar />
 
-      <div className="min-h-screen bg-gray-50 px-4 py-8 md:px-12 lg:px-20">
-        <h1 className="text-3xl md:text-4xl font-bold text-center text-gray-800 mb-8">
+      <div className="min-h-screen bg-black px-4 py-10 md:px-12 lg:px-20">
+        {/* Title */}
+        <h1 className="text-3xl md:text-4xl font-bold text-center text-white mb-8 tracking-wide">
           LuxeLoom Exclusive Offers ✨
         </h1>
 
         {offers.length === 0 ? (
-          <p className="text-center text-gray-600 text-lg">
+          <p className="text-center text-gray-300 text-lg">
             No offers available right now. Please check back later.
           </p>
         ) : (
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
             {offers.map((offer) => (
               <div
                 key={offer.id}
-                className={`bg-white shadow-lg rounded-2xl overflow-hidden transition-transform duration-300 ${
+                className={`bg-[#111] rounded-2xl overflow-hidden transition-transform duration-300 shadow-lg hover:shadow-yellow-500/40 ${
                   offer.id === 1
-                    ? "border-4 border-yellow-400 hover:scale-110"
-                    : "hover:scale-105"
+                    ? "border-2 border-yellow-400 hover:scale-105"
+                    : "border border-gray-700 hover:scale-105"
                 }`}
               >
+                {/* Offer Image */}
                 <div className="relative w-full h-60">
                   <Image
                     src={offer.image}
                     alt={offer.title}
                     fill
+                    priority
                     className="object-cover"
                   />
                 </div>
+
+                {/* Offer Content */}
                 <div className="p-5">
+                  {/* Discount Badge */}
                   <span
-                    className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide ${
                       offer.id === 1
                         ? "bg-yellow-400 text-black"
-                        : "bg-black text-white"
+                        : "bg-black border border-yellow-400 text-yellow-400"
                     }`}
                   >
                     {offer.discount}
                   </span>
+
+                  {/* Offer Title */}
                   <h2
                     className={`text-xl font-semibold mt-3 ${
-                      offer.id === 1 ? "text-yellow-600" : "text-gray-800"
+                      offer.id === 1 ? "text-yellow-400" : "text-white"
                     }`}
                   >
                     {offer.title}
                   </h2>
-                  <p className="text-gray-600 mt-2 text-sm">
+
+                  {/* Offer Description */}
+                  <p className="text-gray-300 mt-2 text-sm leading-relaxed">
                     {offer.description}
                   </p>
+
+                  {/* Shop Now Button */}
                   <Link
                     href={offer.link}
-                    className={`inline-block mt-4 px-5 py-2 rounded-lg text-sm font-medium transition ${
+                    className={`inline-block mt-4 px-5 py-2 rounded-lg text-sm font-medium transition-all ${
                       offer.id === 1
-                        ? "bg-yellow-500 text-black hover:bg-yellow-600"
-                        : "bg-black text-white hover:bg-gray-800"
+                        ? "bg-yellow-400 text-black hover:bg-yellow-500"
+                        : "bg-black text-yellow-400 border border-yellow-400 hover:bg-yellow-400 hover:text-black"
                     }`}
                   >
                     Shop Now

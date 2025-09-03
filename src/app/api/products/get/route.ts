@@ -19,6 +19,7 @@ export async function GET() {
     p.id,
     p.name,
     p.description,
+    p.quantity, 
     p.price,
     ANY_VALUE(c.name) AS category,
     GROUP_CONCAT(i.image_url) AS images

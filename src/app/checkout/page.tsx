@@ -295,10 +295,13 @@ export default function CheckoutPage() {
           ) : (
             <>
               <div className="flex flex-col gap-4">
-                {cart.map((item) => {
+                {cart.map((item, index) => {
                   const discountedPrice = getDiscountedPrice(item.price);
                   return (
-                    <div key={item.id} className="flex items-center gap-3 border-b pb-3">
+                    <div
+                      key={item.id || index} // <-- Fix for unique key warning
+                      className="flex items-center gap-3 border-b pb-3"
+                    >
                       <Image
                         src={item.images[0]}
                         alt={item.name}

@@ -79,29 +79,29 @@ export default function ReviewsPage() {
   };
 
   return (
-    <div className="bg-[#fdfdfd] min-h-screen">
+    <div className="bg-black text-white min-h-screen">
       <div className="max-w-5xl mx-auto py-10 px-4">
         {/* Hero Section */}
         <div className="text-center mb-10">
           <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-[#d4af37] to-[#b8860b] bg-clip-text text-transparent">
             Customer Reviews
           </h1>
-          <p className="text-gray-600 mt-3 text-lg">
-            Discover what our Luxeloom customers are saying about their premium purchases.
+          <p className="text-gray-300 mt-3 text-lg">
+            Discover what our LuxeLoom customers are saying about their premium purchases.
           </p>
 
           {/* Buttons */}
           <div className="flex flex-wrap justify-center gap-4 mt-6">
             <button
               onClick={() => setShowForm(!showForm)}
-              className="px-8 py-3 rounded-full bg-gradient-to-r from-[#000000] to-[#333333] text-white font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
             >
               {showForm ? "Close Review Form" : "Give a Review"}
             </button>
 
             <Link
               href="/"
-              className="px-8 py-3 rounded-full bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-white font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+              className="px-8 py-3 rounded-full bg-gradient-to-r from-gray-900 to-gray-700 text-white font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
             >
               Back to Home
             </Link>
@@ -112,9 +112,9 @@ export default function ReviewsPage() {
         {showForm && (
           <form
             onSubmit={handleSubmit}
-            className="bg-white shadow-2xl rounded-2xl p-6 mb-10 border border-gray-200 transition-all duration-500"
+            className="bg-gray-900 shadow-2xl rounded-2xl p-6 mb-10 border border-gray-700 transition-all duration-500"
           >
-            <h2 className="text-2xl font-semibold mb-5 text-[#222]">Share Your Experience</h2>
+            <h2 className="text-2xl font-semibold mb-5 text-white">Share Your Experience</h2>
 
             {/* Name Input */}
             <div className="mb-5">
@@ -125,7 +125,7 @@ export default function ReviewsPage() {
                 value={form.name}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] text-gray-700 shadow-sm"
+                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] bg-gray-800 border-gray-700 text-white"
               />
             </div>
 
@@ -137,7 +137,7 @@ export default function ReviewsPage() {
                   size={32}
                   onClick={() => setForm({ ...form, rating: star })}
                   className={`cursor-pointer transition-transform duration-200 ${
-                    star <= form.rating ? "text-[#d4af37] scale-110" : "text-gray-300"
+                    star <= form.rating ? "text-[#d4af37] scale-110" : "text-gray-600"
                   }`}
                 />
               ))}
@@ -151,7 +151,7 @@ export default function ReviewsPage() {
                 value={form.comment}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] text-gray-700 shadow-sm"
+                className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#d4af37] bg-gray-800 border-gray-700 text-white"
                 rows={4}
               />
             </div>
@@ -162,7 +162,7 @@ export default function ReviewsPage() {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
-                className="block w-full text-gray-700"
+                className="block w-full text-gray-300"
               />
               {form.imagePreview && (
                 <div className="mt-3">
@@ -171,7 +171,7 @@ export default function ReviewsPage() {
                     alt="Preview"
                     width={120}
                     height={120}
-                    className="rounded-lg border shadow-md"
+                    className="rounded-lg border border-gray-600 shadow-md"
                   />
                 </div>
               )}
@@ -180,7 +180,7 @@ export default function ReviewsPage() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-white px-8 py-3 rounded-full font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
+              className="bg-gradient-to-r from-[#d4af37] to-[#b8860b] text-black px-8 py-3 rounded-full font-semibold shadow-lg hover:scale-105 hover:shadow-xl transition-all duration-300"
             >
               Submit Review
             </button>
@@ -193,21 +193,21 @@ export default function ReviewsPage() {
             reviews.map((review) => (
               <div
                 key={review.id}
-                className="bg-white shadow-lg p-4 rounded-xl border border-gray-100 hover:shadow-xl transition-all duration-300"
+                className="bg-gray-900 shadow-lg p-4 rounded-xl border border-gray-700 hover:shadow-xl transition-all duration-300"
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-base text-[#222]">{review.name}</h3>
+                  <h3 className="font-semibold text-base text-white">{review.name}</h3>
                   <div className="flex space-x-1">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <FaStar
                         key={star}
                         size={16}
-                        className={`${star <= review.rating ? "text-[#d4af37]" : "text-gray-300"}`}
+                        className={`${star <= review.rating ? "text-[#d4af37]" : "text-gray-600"}`}
                       />
                     ))}
                   </div>
                 </div>
-                <p className="text-gray-600 text-sm mt-2">{review.comment}</p>
+                <p className="text-gray-300 text-sm mt-2">{review.comment}</p>
                 {review.imageUrl && (
                   <div className="mt-3">
                     <Image
@@ -215,17 +215,17 @@ export default function ReviewsPage() {
                       alt="review"
                       width={140}
                       height={140}
-                      className="rounded-lg border shadow-sm"
+                      className="rounded-lg border border-gray-700 shadow-sm"
                     />
                   </div>
                 )}
-                <p className="text-gray-400 text-xs mt-2">
+                <p className="text-gray-500 text-xs mt-2">
                   {new Date(review.created_at).toLocaleDateString()}
                 </p>
               </div>
             ))
           ) : (
-            <p className="text-gray-500 text-center">No reviews yet. Be the first!</p>
+            <p className="text-gray-400 text-center">No reviews yet. Be the first!</p>
           )}
         </div>
       </div>

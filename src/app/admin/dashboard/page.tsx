@@ -75,9 +75,9 @@ console.log(totalOrders, "abc", totalPaidOrders, totalRevenue);
                       "Customer",
                       "Email",
                       "Phone",
-                      "Address",
-                      "City",
-                      "Pincode",
+                      // "Address",
+                      // "City",
+                      // "Pincode",
                       "Total",
                       "Payment",
                       "Date",
@@ -101,9 +101,9 @@ console.log(totalOrders, "abc", totalPaidOrders, totalRevenue);
                       <td className="border px-4 py-2">{order.user_name}</td>
                       <td className="border px-4 py-2">{order.user_email}</td>
                       <td className="border px-4 py-2">{order.user_phone}</td>
-                      <td className="border px-4 py-2">{order.delivery_address}</td>
+                      {/* <td className="border px-4 py-2">{order.delivery_address}</td>
                       <td className="border px-4 py-2">{order.delivery_city}</td>
-                      <td className="border px-4 py-2">{order.delivery_pincode}</td>
+                      <td className="border px-4 py-2">{order.delivery_pincode}</td> */}
                       <td className="border px-4 py-2">₹{order.total_amount}</td>
                       <td className="border px-4 py-2">
                         <span
