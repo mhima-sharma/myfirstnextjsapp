@@ -1,18 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function OtpPage() {
   const router = useRouter();
-  const [form, setForm] = useState({ emailOrPhone: "", otp: "" });
+  const [otp, setOtp] = useState("");
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [emailOrPhone, setEmailOrPhone] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  // ✅ Get email/phone from localStorage (or wherever you stored it)
+  useEffect(() => {
+    const storedEmailOrPhone = localStorage.getItem("emailOrPhone");
+    if (!storedEmailOrPhone) {
+      router.push("/login"); // If missing, redirect to login
+    } else {
+      setEmailOrPhone(storedEmailOrPhone);
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,7 +30,7 @@ export default function OtpPage() {
       const res = await fetch("/api/auth/otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ emailOrPhone, otp }), // ✅ Send emailOrPhone automatically
       });
 
       const data = await res.json();
@@ -33,7 +40,7 @@ export default function OtpPage() {
         localStorage.setItem("token", data.token);
         setMessage("OTP verified successfully! Redirecting...");
         setTimeout(() => {
-          router.push("/");
+          router.push("/login");
         }, 1500);
       } else {
         setMessage(data.error || "OTP verification failed");
@@ -50,7 +57,7 @@ export default function OtpPage() {
       {/* Luxeloom Logo */}
       <div className="mb-6">
         <Image
-          src="/logo.png" // ✅ Replace with your logo path
+          src="/logo.png"
           alt="Luxeloom Logo"
           width={150}
           height={60}
@@ -64,14 +71,17 @@ export default function OtpPage() {
           OTP Verification
         </h1>
         <p className="text-center text-gray-500 text-sm mb-6">
-          Please enter the OTP sent to your email or phone.
+          Please enter the OTP sent to{" "}
+          <span className="font-semibold text-black">{emailOrPhone}</span>
         </p>
 
         {/* Success / Error Message */}
         {message && (
           <p
             className={`text-center mb-4 text-sm font-medium ${
-              message.includes("successfully") ? "text-green-600" : "text-red-500"
+              message.includes("successfully")
+                ? "text-green-600"
+                : "text-red-500"
             }`}
           >
             {message}
@@ -82,21 +92,10 @@ export default function OtpPage() {
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <input
-              name="emailOrPhone"
-              placeholder="Enter Email or Phone"
-              value={form.emailOrPhone}
-              onChange={handleChange}
-              className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-black transition"
-              required
-            />
-          </div>
-
-          <div>
-            <input
               name="otp"
               placeholder="Enter OTP"
-              value={form.otp}
-              onChange={handleChange}
+              value={otp}
+              onChange={(e) => setOtp(e.target.value)}
               className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-black transition"
               required
             />
