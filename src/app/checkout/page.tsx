@@ -178,7 +178,7 @@ export default function CheckoutPage() {
           key: data.key,
           amount: data.order.amount,
           currency: "INR",
-          name: "Next.js Store",
+          name: "Luxeloom Store",
           order_id: data.order.id,
           handler: async (response: any) => {
             try {
@@ -459,7 +459,7 @@ export default function CheckoutPage() {
           <div className="grid grid-cols-1 gap-4">
             {[
               { id: "RAZORPAY", label: "Razorpay", logo: "/razorpay.png" },
-              { id: "EASEBUZZ", label: "Easebuzz", logo: "/easebuzz1.png" },
+              // { id: "EASEBUZZ", label: "Easebuzz", logo: "/easebuzz1.png" },
             ].map((method) => (
               <div
                 key={method.id}
