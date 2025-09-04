@@ -105,6 +105,7 @@ export async function GET(req, context ) {
 
     // Convert images string to array
     const product = (products )[0];
+    console.log("Product fetched by ID:>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>", product);
     product.images = product.images ? product.images.split(",") : [];
 
     return NextResponse.json({ success: true, product });

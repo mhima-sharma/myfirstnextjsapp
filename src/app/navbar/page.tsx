@@ -16,7 +16,8 @@ interface CartItem {
 }
 
 interface Product {
-  id: string;
+  id?: string;
+  _id?: string; // Added for MongoDB/Next API compatibility
   name: string;
   price: number;
   images: string;
@@ -38,21 +39,32 @@ export default function NavBar() {
 
   // Load token & fetch cart
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    setStoreToken(token);
+  const token = localStorage.getItem("token");
+  setStoreToken(token);
 
-    if (token) {
-      fetch("/api/cart", {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
+  if (token) {
+    fetch("/api/cart", {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((res) => {
+        if (res.status === 401) {
+          // Token expired or invalid
+          localStorage.removeItem("token");
+          setStoreToken(null);
+          setCart([]);
+          setIsSideAuthOpen(true); // prompt login
+          throw new Error("Token expired. Please login again.");
+        }
+        return res.json();
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) setCart(data.cart);
-        })
-        .catch((err) => console.error("❌ Error fetching cart:", err));
-    }
-  }, []);
+      .then((data) => {
+        if (data.success) setCart(data.cart);
+      })
+      .catch((err) => console.error("❌ Error fetching cart:", err));
+  }
+}, []);
+
 
   // Fetch products for stock check
   useEffect(() => {
@@ -60,7 +72,10 @@ export default function NavBar() {
       try {
         const res = await fetch("/api/products/get");
         const data = await res.json();
-        if (data.success) setProducts(data.products);
+        if (data.success) {
+          console.log("✅ Products Fetched:", data.products);
+          setProducts(data.products);
+        }
       } catch (error) {
         console.error("❌ Error fetching products:", error);
       } finally {
@@ -94,7 +109,7 @@ export default function NavBar() {
 
   // Cart Operations
   const handleAddToCart = (product: Product) => {
-    const cartItem = cart.find((item) => item.id === product.id);
+    const cartItem = cart.find((item) => item.id === (product.id || product._id));
     const currentQty = cartItem ? cartItem.quantity : 0;
 
     if (currentQty + 1 > product.quantity) {
@@ -102,12 +117,12 @@ export default function NavBar() {
       return;
     }
 
-    updateCartBackend({ product_id: product.id, quantity: 1 });
+    updateCartBackend({ product_id: product.id || product._id, quantity: 1 });
   };
 
   const handleIncreaseQty = (product_id: string) => {
     const cartItem = cart.find((item) => item.id === product_id);
-    const product = products.find((p) => p.id === product_id);
+    const product = products.find((p) => p.id === product_id || p._id === product_id);
     if (!cartItem || !product) return;
 
     if (cartItem.quantity + 1 > product.quantity) {
@@ -134,7 +149,6 @@ export default function NavBar() {
     if (!storeToken) return setIsSideAuthOpen(true);
 
     setCart((prev) => prev.filter((item) => item.id !== product_id));
-
     updateCartBackend({ product_id, remove: true });
   };
 
@@ -289,9 +303,14 @@ export default function NavBar() {
             ) : (
               <div className="flex flex-col gap-4">
                 {cart.map((item) => {
+                  const product = products.find((p) => p.id === item.id || p._id === item.id);
+                  const availableQty = product ? product.quantity : 0;
                   const discountedPrice = getDiscountedPrice(item.price);
+                  const isOverStock = item.quantity > availableQty;
+
                   return (
-                    <div key={`cart-${item.id}`} className="flex items-center gap-3 border-b pb-3">
+                    <div key={`cart-${item.id}`} className="flex items-center gap-3 border-b pb-3 relative">
+                      {/* Product Image */}
                       <Image
                         src={item.images[0]}
                         alt={item.name}
@@ -299,17 +318,51 @@ export default function NavBar() {
                         height={60}
                         className="rounded-md object-cover"
                       />
+
                       <div className="flex-1">
+                        {/* Product Name */}
                         <h3 className="font-semibold text-gray-800">{item.name}</h3>
+
+                        {/* Price + Stock */}
                         <div className="flex items-center gap-2">
                           <p className="text-green-600 font-bold">₹{discountedPrice}</p>
                           <p className="text-gray-400 line-through text-sm">₹{item.price}</p>
+                          <span className="text-sm text-gray-500">
+                            Available: {availableQty > 0 ? availableQty : "Out of stock"}
+                          </span>
                         </div>
+
+                        {/* Quantity */}
                         <div className="flex items-center gap-2 mt-1">
                           <span className="px-2">Quantity: {item.quantity}</span>
                         </div>
 
-                        {/* ✅ Brand Badge Logo Added */}
+                        {/* Show Warning if Added Qty > Available */}
+                        {isOverStock && (
+                          <div className="mt-2 bg-red-100 text-red-700 text-xs px-3 py-2 rounded-md shadow-sm flex flex-col gap-2">
+                            <p>⚠ You added more than available stock!</p>
+                            <div className="flex gap-2">
+                              <button
+                                onClick={() => updateCartBackend({ product_id: item.id, quantity: availableQty })}
+                                className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
+                              >
+                                Update to {availableQty}
+                              </button>
+                              <button
+                                onClick={() =>
+                                  alert(
+                                    `You still have ${item.quantity} items in cart but only ${availableQty} are available.`
+                                  )
+                                }
+                                className="px-3 py-1 bg-gray-300 text-gray-800 text-xs rounded hover:bg-gray-400"
+                              >
+                                Keep Current
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ✅ LuxeLoom Badge */}
                         <div className="flex items-center gap-2 mt-2">
                           <Image
                             src="/logo2.png"
@@ -321,7 +374,12 @@ export default function NavBar() {
                           <span className="text-xs text-gray-500">LuxeLoom Verified</span>
                         </div>
                       </div>
-                      <button onClick={() => handleRemoveFromCart(item.id)} className="p-1 text-red-500 hover:bg-gray-100 rounded">
+
+                      {/* Remove Button */}
+                      <button
+                        onClick={() => handleRemoveFromCart(item.id)}
+                        className="p-1 text-red-500 hover:bg-gray-100 rounded"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>

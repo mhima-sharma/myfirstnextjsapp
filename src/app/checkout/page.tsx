@@ -136,6 +136,19 @@ export default function CheckoutPage() {
   const platformFee = cart.length > 0 ? 10 : 0;
   const grandTotal = subtotal - totalDiscount + platformFee;
 
+  /** 🔥 Function to update stock after payment success */
+  const updateStockAfterPayment = async () => {
+    try {
+      await fetch("/api/products/update-stock", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart }),
+      });
+    } catch (err) {
+      console.error("Failed to update stock:", err);
+    }
+  };
+
   const handlePlaceOrder = async () => {
     if (!paymentMethod) {
       alert("Please select a payment method!");
@@ -185,6 +198,9 @@ export default function CheckoutPage() {
                 }),
               });
 
+              /** ✅ Update stock after payment */
+              await updateStockAfterPayment();
+
               router.push("/payment-success");
             } catch (err) {
               console.error("Payment webhook failed:", err);
@@ -222,6 +238,9 @@ export default function CheckoutPage() {
       const data = await res.json();
 
       if (data.success && data.data.payment_request) {
+        /** ✅ Update stock after payment */
+        await updateStockAfterPayment();
+
         window.location.href = data.data.payment_request.longurl;
       } else {
         router.push("/payment-failed");
@@ -299,7 +318,7 @@ export default function CheckoutPage() {
                   const discountedPrice = getDiscountedPrice(item.price);
                   return (
                     <div
-                      key={item.id || index} // <-- Fix for unique key warning
+                      key={item.id || index}
                       className="flex items-center gap-3 border-b pb-3"
                     >
                       <Image
