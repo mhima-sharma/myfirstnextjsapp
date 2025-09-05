@@ -714,12 +714,12 @@ export default function ProductDetails() {
             >
               {addToCartDisabled ? "Max Stock in Cart" : "Add to Cart"}
             </button>
-            <button
+            {/* <button
               onClick={handleBuyNow}
               className="bg-green-600 text-white px-6 py-3 rounded-lg shadow hover:bg-green-700 transition"
             >
               Buy Now
-            </button>
+            </button> */}
           </div>
 
           {/* ✅ Premium Trust Badges */}

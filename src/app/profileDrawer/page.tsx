@@ -160,13 +160,24 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         ) : (
           <div className="text-center space-y-4">
             <p className="text-gray-500">You are not logged in.</p>
-            <Link
+            {/* <Link
               href="/login"
               onClick={onClose}
               className="block text-center w-full px-4 py-2 bg-[#B39452] text-white rounded-full hover:bg-[#9d8147] transition shadow"
             >
               Login
-            </Link>
+            </Link> */}
+             <p className="text-gray-500">You are token is expired.</p>
+              <button
+              onClick={() => {
+                localStorage.removeItem("token");
+                signOut({ callbackUrl: "/" });
+                onClose();
+              }}
+              className="w-full px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 transition shadow"
+            >
+              Logout
+            </button>
           </div>
         )}
       </div>

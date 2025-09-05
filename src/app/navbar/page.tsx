@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -39,32 +40,30 @@ export default function NavBar() {
 
   // Load token & fetch cart
   useEffect(() => {
-  const token = localStorage.getItem("token");
-  setStoreToken(token);
+    const token = localStorage.getItem("token");
+    setStoreToken(token);
 
-  if (token) {
-    fetch("/api/cart", {
-      method: "GET",
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          // Token expired or invalid
-          localStorage.removeItem("token");
-          setStoreToken(null);
-          setCart([]);
-          setIsSideAuthOpen(true); // prompt login
-          throw new Error("Token expired. Please login again.");
-        }
-        return res.json();
+    if (token) {
+      fetch("/api/cart", {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
       })
-      .then((data) => {
-        if (data.success) setCart(data.cart);
-      })
-      .catch((err) => console.error("❌ Error fetching cart:", err));
-  }
-}, []);
-
+        .then((res) => {
+          if (res.status === 401) {
+            localStorage.removeItem("token");
+            setStoreToken(null);
+            setCart([]);
+            setIsSideAuthOpen(true);
+            throw new Error("Token expired. Please login again.");
+          }
+          return res.json();
+        })
+        .then((data) => {
+          if (data.success) setCart(data.cart);
+        })
+        .catch((err) => console.error("❌ Error fetching cart:", err));
+    }
+  }, []);
 
   // Fetch products for stock check
   useEffect(() => {
@@ -187,6 +186,12 @@ export default function NavBar() {
   const discountedTotal = subtotal - totalDiscount;
   const platformFee = cart.length > 0 ? 10 : 0;
   const grandTotal = discountedTotal + platformFee;
+
+  // 🚨 Check if cart has invalid quantities
+  const hasOverStock = cart.some((item) => {
+    const product = products.find((p) => p.id === item.id || p._id === item.id);
+    return product ? item.quantity > product.quantity : false;
+  });
 
   return (
     <>
@@ -340,8 +345,10 @@ export default function NavBar() {
                         {/* Show Warning if Added Qty > Available */}
                         {isOverStock && (
                           <div className="mt-2 bg-red-100 text-red-700 text-xs px-3 py-2 rounded-md shadow-sm flex flex-col gap-2">
-                            <p>⚠ You added more than available stock!</p>
-                            <div className="flex gap-2">
+                            <p>⚠ Out of stock!</p>
+                           
+
+                            {/* <div className="flex gap-2">
                               <button
                                 onClick={() => updateCartBackend({ product_id: item.id, quantity: availableQty })}
                                 className="px-3 py-1 bg-red-600 text-white text-xs rounded hover:bg-red-700"
@@ -358,7 +365,7 @@ export default function NavBar() {
                               >
                                 Keep Current
                               </button>
-                            </div>
+                            </div> */}
                           </div>
                         )}
 
@@ -408,9 +415,13 @@ export default function NavBar() {
                 </div>
                 <button
                   onClick={handleCheckout}
-                  className="mt-4 block w-full text-center px-4 py-2 bg-[#B39452] text-white rounded-lg hover:bg-[#9d8147] transition"
+                  disabled={hasOverStock}
+                  className={`mt-4 block w-full text-center px-4 py-2 rounded-lg transition 
+                    ${hasOverStock 
+                      ? "bg-gray-400 text-gray-200 cursor-not-allowed" 
+                      : "bg-[#B39452] text-white hover:bg-[#9d8147]"}`}
                 >
-                  Checkout
+                  {hasOverStock ? "Fix Stock Issues to Checkout" : "Checkout"}
                 </button>
               </div>
             )}
