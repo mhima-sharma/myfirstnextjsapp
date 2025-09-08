@@ -39,9 +39,9 @@ export default function AdminDashboard() {
             LuxeLoom Admin Panel
           </h1>
           
-          <button className="bg-black text-white px-5 py-2 rounded-xl shadow-md hover:bg-gray-800 transition">
+          {/* <button className="bg-black text-white px-5 py-2 rounded-xl shadow-md hover:bg-gray-800 transition">
             + Add Product
-          </button>
+          </button> */}
         </div>
 
         {/* Product Table */}
