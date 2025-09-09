@@ -345,6 +345,7 @@ export default function AddProductPage() {
 
         {/* Quantity ✅ */}
         <label className="block mb-2 font-medium text-[#333]">Quantity</label>
+        <p className= "mb-1 text-sm text-red-400">"Please enter 1Quantity Extra then your acttual stock."</p>
         <input
           type="number"
           placeholder="Enter quantity"
