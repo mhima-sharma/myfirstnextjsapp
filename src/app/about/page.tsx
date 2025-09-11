@@ -131,6 +131,7 @@ export default function AboutUs() {
         </div>
       </section>
 
+
       {/* Footer */}
       <main className="flex flex-col gap-[32px] items-center sm:items-start mt-[80px] px-4 w-full">
         <Footer />
