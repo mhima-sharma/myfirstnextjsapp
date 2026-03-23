@@ -6,13 +6,20 @@ export const generateOTP = () => {
 };
 
 export const sendOTP = async (to: string, otp: string) => {
+  const smtpUser = process.env.SMTP_USER;
+  const smtpPass = process.env.SMTP_PASS;
+
+  if (!smtpUser || !smtpPass) {
+    throw new Error("SMTP credentials are missing");
+  }
+
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
-      user: "mahimasharma052002@gmail.com",
-      pass: "dkuc jcvu fiid plbr",
+      user: smtpUser,
+      pass: smtpPass,
     },
   });
 
@@ -149,7 +156,7 @@ export const sendOTP = async (to: string, otp: string) => {
   `;
 
   await transporter.sendMail({
-    from: `"Luxeloom" <mahimasharma052002@gmail.com>`,
+    from: `"Luxeloom" <${smtpUser}>`,
     to,
     subject: "Your Luxeloom OTP Code",
     html: htmlTemplate,

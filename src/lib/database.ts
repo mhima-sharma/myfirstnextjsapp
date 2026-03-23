@@ -5,7 +5,7 @@ export const pool = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
-  port: 4000, // TiDB serverless default
+  port: Number(process.env.DB_PORT) || 4000,
   ssl: {
     minVersion: "TLSv1.2", // Enforce TLS 1.2+
     rejectUnauthorized: true, // Verify TiDB cert
