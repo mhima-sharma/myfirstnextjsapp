@@ -378,14 +378,14 @@
 // }
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FaStar, FaLock, FaShippingFast, FaUndoAlt, FaHeadset } from "react-icons/fa";
 import NavBar from "../navbar/page";
 import Footer from "../footer/page";
 import Image from "next/image";
 
-export default function ProductDetails() {
+function ProductDetailsContent() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [product, setProduct] = useState<any>(null);
   const [cart, setCart] = useState<any[]>([]);
@@ -783,5 +783,23 @@ export default function ProductDetails() {
         }
       `}</style>
     </div>
+  );
+}
+
+function ProductDetailsFallback() {
+  return (
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+      <NavBar />
+      <p className="text-center mt-20 text-lg">Loading product...</p>
+      <Footer />
+    </div>
+  );
+}
+
+export default function ProductDetails() {
+  return (
+    <Suspense fallback={<ProductDetailsFallback />}>
+      <ProductDetailsContent />
+    </Suspense>
   );
 }
