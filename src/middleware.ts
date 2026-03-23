@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { verifyEdgeToken } from "@/lib/auth-edge";
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   try {
     const token = req.cookies.get("token")?.value;
 
@@ -16,7 +16,7 @@ export function middleware(req: NextRequest) {
       }
 
       // Validate the token
-      const isValid = verifyToken(token);
+      const isValid = await verifyEdgeToken(token);
       if (!isValid) {
         // Invalid or expired token → clear cookie & redirect to login
         const response = NextResponse.redirect(new URL("/", req.url));
