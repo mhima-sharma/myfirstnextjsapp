@@ -14,7 +14,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // ✅ Fetch logged-in user data
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -31,10 +30,10 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         });
 
         const data = await res.json();
-        console.log(data,"____datat")
+        console.log(data, "____datat");
         if (data.success) {
           setUser(data.user);
-            localStorage.setItem("user", JSON.stringify(data.user));
+          localStorage.setItem("user", JSON.stringify(data.user));
         } else {
           setUser(null);
         }
@@ -42,7 +41,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         console.error("Error fetching profile:", error);
         setUser(null);
       } finally {
-        
         setLoading(false);
       }
     };
@@ -50,12 +48,10 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
     if (isOpen) fetchUserProfile();
   }, [isOpen]);
 
-  // ✅ Function to get first letter of the name
   const getInitial = (name: string) => {
     return name ? name.charAt(0).toUpperCase() : "U";
   };
 
-  // ✅ Function to capitalize the full name
   const capitalizeName = (name: string) => {
     if (!name) return "User";
     return name
@@ -65,7 +61,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
       .join(" ");
   };
 
-  // ✅ Generate a consistent colorful background based on user name
   const getColor = (name: string) => {
     const colors = [
       "bg-red-500",
@@ -89,7 +84,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         isOpen ? "translate-x-0" : "translate-x-full"
       }`}
     >
-      {/* Header */}
       <div className="flex justify-between items-center p-4 border-b bg-[#fff]">
         <h2 className="text-lg font-semibold text-gray-800">My Profile</h2>
         <button onClick={onClose} className="p-1 rounded hover:bg-gray-100">
@@ -97,13 +91,11 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         </button>
       </div>
 
-      {/* Body */}
       <div className="p-6">
         {loading ? (
           <p className="text-center text-gray-500">Loading profile...</p>
         ) : user ? (
           <div className="space-y-6">
-            {/* ✅ Profile Initial Avatar */}
             <div className="flex flex-col items-center">
               <div
                 className={`w-24 h-24 rounded-full flex items-center justify-center text-white text-3xl font-bold shadow ${getColor(
@@ -120,7 +112,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
               </p>
             </div>
 
-            {/* Profile Details */}
             <div className="mt-4 space-y-3 bg-gray-50 p-4 rounded-lg shadow-sm">
               <div>
                 <p className="font-medium text-gray-700">Phone:</p>
@@ -136,7 +127,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
               </div>
             </div>
 
-            {/* My Orders Button */}
             <Link
               href="/my-orders"
               onClick={onClose}
@@ -145,7 +135,6 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
               My Orders
             </Link>
 
-            {/* Logout Button */}
             <button
               onClick={() => {
                 localStorage.removeItem("token");
@@ -160,15 +149,8 @@ export default function ProfileDrawer({ isOpen, onClose }: ProfileDrawerProps) {
         ) : (
           <div className="text-center space-y-4">
             <p className="text-gray-500">You are not logged in.</p>
-            {/* <Link
-              href="/login"
-              onClick={onClose}
-              className="block text-center w-full px-4 py-2 bg-[#B39452] text-white rounded-full hover:bg-[#9d8147] transition shadow"
-            >
-              Login
-            </Link> */}
-             <p className="text-gray-500">You are token is expired.</p>
-              <button
+            <p className="text-gray-500">You are token is expired.</p>
+            <button
               onClick={() => {
                 localStorage.removeItem("token");
                 signOut({ callbackUrl: "/" });

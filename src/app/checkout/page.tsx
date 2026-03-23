@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import SideAuth from "../sideAuth/page"; // Login modal/component
+import SideAuth from "../sideAuth/SideAuth"; // Login modal/component
 
 interface CartItem {
   id: string;

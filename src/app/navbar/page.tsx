@@ -5,8 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Menu, X, ShoppingCart, User, Trash2 } from "lucide-react";
-import SideAuth from "../sideAuth/page";
-import ProfileDrawer from "../profileDrawer/page";
+import SideAuth from "../sideAuth/SideAuth";
+import ProfileDrawer from "../profileDrawer/ProfileDrawer";
 
 interface CartItem {
   id: string;
