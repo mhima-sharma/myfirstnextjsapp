@@ -380,7 +380,14 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { FaStar, FaLock, FaShippingFast, FaUndoAlt, FaHeadset } from "react-icons/fa";
+import {
+  FaStar,
+  FaLock,
+  FaShippingFast,
+  FaUndoAlt,
+  FaHeadset,
+  FaShareAlt,
+} from "react-icons/fa";
 import NavBar from "../navbar/page";
 import Footer from "../footer/page";
 import Image from "next/image";
@@ -562,6 +569,31 @@ function ProductDetailsContent() {
     router.push(`/checkout?productId=${product.id}&quantity=${quantity}`);
   };
 
+  const handleShareProduct = async () => {
+    if (!product) return;
+
+    const shareUrl = window.location.href;
+    const shareData = {
+      title: product.name,
+      text: `Check out this product: ${product.name}`,
+      url: shareUrl,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        setPopupMessage("Product shared successfully!");
+        return;
+      }
+
+      await navigator.clipboard.writeText(shareUrl);
+      setPopupMessage("Product link copied to clipboard!");
+    } catch (error) {
+      console.error("Failed to share product:", error);
+      setPopupMessage("Unable to share the product right now.");
+    }
+  };
+
   // ✅ Close popup
   const handlePopupClose = () => {
     setPopupMessage(null);
@@ -702,7 +734,7 @@ function ProductDetailsContent() {
           </p>
 
           {/* Buttons */}
-          <div className="flex gap-4 mt-6">
+          <div className="flex flex-wrap gap-4 mt-6">
             <button
               onClick={handleAddToCart}
               disabled={addToCartDisabled}
@@ -713,6 +745,13 @@ function ProductDetailsContent() {
               }`}
             >
               {addToCartDisabled ? "Max Stock in Cart" : "Add to Cart"}
+            </button>
+            <button
+              onClick={handleShareProduct}
+              className="flex items-center gap-2 bg-white text-gray-900 px-6 py-3 rounded-lg shadow border border-gray-300 hover:bg-gray-100 transition"
+            >
+              <FaShareAlt className="text-sm" />
+              Share Product
             </button>
             {/* <button
               onClick={handleBuyNow}
